@@ -1,5 +1,6 @@
+Bakery Transaction Analysis
+===========================
 
--   [Bakery Transaction Analysis](#bakery-transaction-analysis)
     -   [Prerequisites](#prerequisites)
     -   [Explore Data](#explore-data)
     -   [Clean Data](#clean-data)
@@ -8,9 +9,6 @@
     -   [Find the best item combinations with coffee](#find-the-best-item-combinations-with-coffee)
     -   [Item Association Rules](#item-association-rules)
     -   [Acknowledgments](#acknowledgments)
-
-Bakery Transaction Analysis
-===========================
 
 This dataset contains the transaction records of a bakery shop. We tried to find the best combination of items that generally were bought together.
 
