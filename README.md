@@ -1,16 +1,14 @@
-
--   [Bakery Transaction Analysis](#bakery-transaction-analysis)
-    -   [Prerequisites](#prerequisites)
-    -   [Explore Data](#explore-data)
-    -   [Clean Data](#clean-data)
-    -   [Exploratory Data Analysis](#exploratory-data-analysis)
-    -   [Item Combination](#item-combination)
-    -   [Find the best item combinations with coffee](#find-the-best-item-combinations-with-coffee)
-    -   [Item Association Rules](#item-association-rules)
-    -   [Acknowledgments](#acknowledgments)
-
 Bakery Transaction Analysis
 ===========================
+
+-   [Prerequisites](#prerequisites)
+-   [Explore Data](#explore-data)
+-   [Clean Data](#clean-data)
+-   [Exploratory Data Analysis](#exploratory-data-analysis)
+-   [Item Combination](#item-combination)
+-   [Find the best item combinations with coffee](#find-the-best-item-combinations-with-coffee)
+-   [Item Association Rules](#item-association-rules)
+-   [Acknowledgments](#acknowledgments)
 
 This dataset contains the transaction records of a bakery shop. We tried to find the best combination of items that generally were bought together.
 
@@ -41,7 +39,7 @@ describe(data)
 head(data)
 
 # Correct date and time column types
-data = data %>% 
+data = data %>%
   mutate(
     Date = as.Date(Date),  
     Time = as.ITime(Time)  
@@ -51,7 +49,7 @@ str(data)
 # find how many unique items that we have
 data_item <- data %>%
   group_by(Item) %>%
-  summarise(Count = n()) 
+  summarise(Count = n())
 
 lengths(data_item)[2]
 ```
@@ -71,7 +69,7 @@ found<-c()
 # Found word types is 1 so only one of thing in my list founded in our data ("NONE")    
 found_words = word_list[found]
 
-# how many of them are "NONE" 
+# how many of them are "NONE"
 nrow(data[which(data$Item == "NONE"),])
 
 # Data include 786 missing values so let's drop them
@@ -95,13 +93,13 @@ We start with time variables.
 ### How many items were made across the year
 
 ``` r
-data_clean %>% group_by(Date, Item) %>% summarise(Count=n()) %>% 
+data_clean %>% group_by(Date, Item) %>% summarise(Count=n()) %>%
   mutate(Year = year(Date)) %>%
   ggplot(aes(x=Date, y=Count, colour=factor(Year))) +
   geom_line() +
   theme(legend.position = "bottom") +
   scale_color_manual(values=c("coral", "cornflowerblue")) +
-  labs(y="Transactions", title="Total Transactions by Date", colour="Year") 
+  labs(y="Transactions", title="Total Transactions by Date", colour="Year")
 ```
 
 ![](plots/year-1.png)
@@ -111,9 +109,9 @@ data_clean %>% group_by(Date, Item) %>% summarise(Count=n()) %>%
 ### Transcations by Month
 
 ``` r
-data_clean %>% 
+data_clean %>%
   mutate(Month = as.factor(month(Date))) %>%
-  group_by(Month, Transaction) %>% 
+  group_by(Month, Transaction) %>%
   summarise(Count=n()) %>%
   ggplot(aes(x=Month)) +
   geom_histogram(stat="count", fill="cornflowerblue", width=.6) +
@@ -125,16 +123,16 @@ data_clean %>%
 
 ``` r
 
-data_clean %>% 
+data_clean %>%
   mutate(Month = as.factor(month(Date))) %>%
-  group_by(Month, Transaction) %>% 
+  group_by(Month, Transaction) %>%
   summarise(Count=n()) %>%
   ggplot(aes(x=Month, y=Count, fill=Month)) +
   geom_boxplot() +
   labs(y="Transactions", title="Total Transactions by Month") +
   scale_fill_brewer(type="seq", palette = "Set3") +
   theme(legend.position = "none") +
-  scale_y_continuous(limits = c(0,15)) 
+  scale_y_continuous(limits = c(0,15))
 ```
 
 ![](plots/month-2.png)
@@ -158,7 +156,7 @@ data_clean %>% mutate(Weekday = weekdays(Date),
 ![](plots/weekday-1.png)
 
 ``` r
-  
+
 data_clean %>% mutate(Weekday = weekdays(Date),
                       Weekday = factor(Weekday, levels=c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))) %>%
   group_by(Weekday, Transaction) %>%
@@ -177,7 +175,7 @@ data_clean %>% mutate(Weekday = weekdays(Date),
 ### How many transcations were made per hour.
 
 ``` r
-data_hr = data_clean %>% mutate(Hour = as.factor(hour(Time))) %>% 
+data_hr = data_clean %>% mutate(Hour = as.factor(hour(Time))) %>%
   group_by(Hour, Transaction) %>% summarise(Count = n())
 
 # set colour for plots
@@ -190,7 +188,7 @@ data_hr %>%
   geom_histogram(stat="count") +
   theme(legend.position="none") +
   labs(x = "Hour", y = "Transactions", title = "Transactions per hour (Unique Transaction ID)") +
-  scale_fill_manual(values = getPalette(colourCount)) 
+  scale_fill_manual(values = getPalette(colourCount))
 ```
 
 ![](plots/hour-1.png)
@@ -202,7 +200,7 @@ data_hr %>%
   geom_boxplot() +
   theme(legend.position="none") +
   labs(x = "Hour", y = "Transactions", title = "Transactions per hour (Unique Transaction ID)") +
-  scale_fill_manual(values = getPalette(colourCount)) 
+  scale_fill_manual(values = getPalette(colourCount))
 ```
 
 ![](plots/hour-2.png)
@@ -222,7 +220,7 @@ data_clean %>% group_by(Item) %>% summarise(Count=n()) %>%
   coord_flip() +
   theme(legend.position="none") +
   labs(x="Item", y="Counts", title="Top 20 popular items") +
-  scale_fill_manual(values = getPalette(colourCount)) 
+  scale_fill_manual(values = getPalette(colourCount))
 ```
 
 ![](plots/popular%20items-1.png)
@@ -245,7 +243,7 @@ ggplot(top10, aes(x=reorder(Item, Count), y=Count, fill=Item)) +
   coord_flip() +
   scale_fill_brewer(type="seq", palette = "Set3") +
   theme(legend.position="none") +
-  labs(x = "Item", y = "Transaction", title = "Top 10 Transactions") 
+  labs(x = "Item", y = "Transaction", title = "Top 10 Transactions")
 ```
 
 ![](plots/top10-1.png)
@@ -272,9 +270,9 @@ ggplot(top10, aes(x="", y=Count, fill=Item)) +
   coord_polar("y", start = 0) +
   scale_fill_brewer(palette = "Set3") +
   geom_text(aes(label = paste0(Percent, "%")),
-            position = position_stack(vjust = 0.5), size=4) + 
+            position = position_stack(vjust = 0.5), size=4) +
   labs(fill="Item", title = "Top 10 Transcations") +
-  theme(axis.text.x=element_blank(), 
+  theme(axis.text.x=element_blank(),
         plot.title = element_text(hjust=.5, size=15),
         legend.text = element_text(size=10))
 ```
@@ -295,15 +293,15 @@ Item Combination
 ### Find which transactions purchased more than two items
 
 ``` r
-data.more = data_clean %>% 
+data.more = data_clean %>%
   group_by(Transaction) %>%
   mutate(ItemsPurchased = n(),
-         Combined = ifelse(ItemsPurchased>1, TRUE, FALSE)) 
+         Combined = ifelse(ItemsPurchased>1, TRUE, FALSE))
 temp = data.more %>%
   filter(Combined=="TRUE") %>%
   group_by(Item, ItemsPurchased) %>%
   summarise(TransactionMoments = n()) %>%
-  filter(TransactionMoments>100 & ItemsPurchased>1)  #select only the most popular ones 
+  filter(TransactionMoments>100 & ItemsPurchased>1)  #select only the most popular ones
 
 colourCount = temp$Item %>% unique() %>% length()
 temp %>%    
@@ -313,7 +311,7 @@ temp %>%
   theme(axis.text.x = element_text(angle=90, hjust=1, vjust=.5),
         legend.position = "none") +
   labs(title="Popular Item Purchased Combination") +
-  scale_fill_manual(values = getPalette(colourCount)) 
+  scale_fill_manual(values = getPalette(colourCount))
 ```
 
 ![](plots/dependent%20items-1.png)
@@ -325,13 +323,13 @@ temp %>%
 ### Similary, we find which items were bought independently
 
 ``` r
-combined.items = data.more %>% 
+combined.items = data.more %>%
   group_by(Item, ItemsPurchased) %>%
   summarise(TransactionMoments = n()) %>%
   filter(TransactionMoments>100 & ItemsPurchased>1)
 temp = data.more %>% filter(Combined=="FALSE") %>%
   group_by(Item) %>% summarise(TransactionMoments = n())
-temp1 = temp[!(temp$Item %in% unique(combined.items$Item)),] 
+temp1 = temp[!(temp$Item %in% unique(combined.items$Item)),]
 colourCount = temp1$Item %>% unique() %>% length()
 temp1 %>%
   ggplot(aes(x=reorder(Item, -TransactionMoments), y=TransactionMoments, fill=Item)) +
@@ -367,7 +365,7 @@ top10buy$Coffee = factor(top10buy$Coffee, levels = c("without", "with"))
 top10buy1 = dcast(top10buy, Item~Coffee, value.var = c("Count"))
 top10buy1$compare = round(top10buy1$with/top10buy1$without,2)
 
-top10buy2 = top10buy %>% group_by(Item) %>% #top10buy2 is for text use 
+top10buy2 = top10buy %>% group_by(Item) %>% #top10buy2 is for text use
  summarise(Sum=sum(Count)) %>% arrange(desc(Sum))
 top10buy2$compare = NULL
 for(i in 1:nrow(top10buy2)){
@@ -424,19 +422,19 @@ association.rules = apriori(transaction.data,
                             )
 )
 #> Apriori
-#> 
+#>
 #> Parameter specification:
 #>  confidence minval smax arem  aval originalSupport maxtime support minlen
 #>         0.6    0.1    1 none FALSE            TRUE       5   0.005      1
 #>  maxlen target   ext
 #>      10  rules FALSE
-#> 
+#>
 #> Algorithmic control:
 #>  filter tree heap memopt load sort verbose
 #>     0.1 TRUE TRUE  FALSE TRUE    2    TRUE
-#> 
-#> Absolute minimum support count: 32 
-#> 
+#>
+#> Absolute minimum support count: 32
+#>
 #> set item appearances ...[1 item(s)] done [0.00s].
 #> set transactions ...[103 item(s), 6577 transaction(s)] done [0.00s].
 #> sorting and recoding items ... [37 item(s)] done [0.00s].
@@ -448,14 +446,14 @@ association.rules = apriori(transaction.data,
 association.rules = sort(association.rules, by = 'support', decreasing = TRUE)
 summary(association.rules)
 #> set of 5 rules
-#> 
+#>
 #> rule length distribution (lhs + rhs):sizes
-#> 2 3 
-#> 3 2 
-#> 
-#>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-#>     2.0     2.0     2.0     2.4     3.0     3.0 
-#> 
+#> 2 3
+#> 3 2
+#>
+#>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+#>     2.0     2.0     2.0     2.4     3.0     3.0
+#>
 #> summary of quality measures:
 #>     support           confidence          lift           count    
 #>  Min.   :0.005626   Min.   :0.6118   Min.   :1.262   Min.   : 37  
@@ -464,7 +462,7 @@ summary(association.rules)
 #>  Mean   :0.012012   Mean   :0.6723   Mean   :1.387   Mean   : 79  
 #>  3rd Qu.:0.014140   3rd Qu.:0.7296   3rd Qu.:1.505   3rd Qu.: 93  
 #>  Max.   :0.025848   Max.   :0.7551   Max.   :1.558   Max.   :170  
-#> 
+#>
 #> mining info:
 #>              data ntransactions support confidence
 #>  transaction.data          6577   0.005        0.6
