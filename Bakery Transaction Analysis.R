@@ -272,7 +272,7 @@ buywithcoffee = ncoffee_data %>%
 head(buywithcoffee)
 ###只看top 10是否有跟coffee一起買的數量  
 top10buy = buywithcoffee[buywithcoffee$Item %in% top10$Item == TRUE,] %>% data.frame()
-top10buy$Coffee = factor(top10buy$Coffee, levels = c("with", "without"))
+top10buy$Coffee = factor(top10buy$Coffee, levels = c("without", "with"))
 top10buy1 = dcast(top10buy, Item~Coffee, value.var = c("Count"))
 top10buy1$compare = round(top10buy1$with/top10buy1$without,2)
 #top10buy1 = arrange(top10buy1, desc(-compare))
@@ -287,14 +287,15 @@ for(i in 1:nrow(top10buy2)){
 
 ggplot(top10buy, aes(x=reorder(Item, -Count), y=Count, fill=Coffee)) +
   geom_bar(stat = "identity", position = "stack") +
-  scale_fill_manual(labels=c("With coffee", "Without coffee"),
-                    values=c("with"="lightskyblue2", "without"="cornflowerblue")) +
+  scale_fill_manual(labels=c("with" = "With coffee", "without" = "Without coffee"),
+                    values=c("with"="lightskyblue2", "without" = "cornflowerblue")) +
   coord_flip() +
   labs(x="Item", y="Count", fill="", title="Sales Information of Top 10 Items With/Without Coffee") +
   theme(legend.position = "bottom") +
   geom_text(aes(label = paste0(Count)),
             position = position_stack(vjust = 0.5), size=3, colour="white") +
-  scale_x_discrete(labels = paste0(top10buy2$Item," ", top10buy2$compare, "%"))
+  scale_x_discrete(labels = paste0(top10buy2$Item," ", top10buy2$compare, "%")) +
+  guides(fill = guide_legend(reverse = TRUE))
 
 
 ##### 6 - Item Association Rules (Market Basket Analysis) #####
