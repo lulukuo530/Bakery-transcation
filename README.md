@@ -10,6 +10,7 @@ Bakery Transaction Analysis
 -   [Item Association Rules](#item-association-rules)
 -   [Acknowledgments](#acknowledgments)
 
+
 This dataset contains the transaction records of a bakery shop. We tried to find the best combination of items that generally were bought together.
 
 ### Prerequisites
