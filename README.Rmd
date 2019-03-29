@@ -262,14 +262,14 @@ top10data = data_clean[grep(paste(top10$Item[-11], collapse="$|"), data_clean$It
 top10data = summarise(group_by(top10data, Item, Weekday), Count = n())
 
 ### Because Bread and Coffee have too many frequencies, so separate them from others
-a1 = top10data[grep("Coffee|Bread", top10data$Item),]
-ggplot(a1, aes(x=Weekday, y=Item)) +
+top10data[grep("Coffee|Bread", top10data$Item),] %>%
+  ggplot(aes(x=Weekday, y=Item)) +
   geom_tile(aes(fill=Count), colour="white") +
   scale_fill_continuous(low="white", high="steelblue", name="Count") +
   labs(title = "Purchase Frequency by Weekday\nWith Coffee & Bread") 
   
-a2 = top10data[grep("Coffee|Bread", top10data$Item, invert=TRUE),]
-ggplot(a2, aes(x=Weekday, y=Item)) +
+top10data[grep("Coffee|Bread", top10data$Item, invert=TRUE),] %>%
+  ggplot(aes(x=Weekday, y=Item)) +
   geom_tile(aes(fill=Count), colour="white") +
   scale_fill_continuous(low="white", high="steelblue", name="Count") +
   labs(title = "Top 10 Items Purchase Frequency by Weekday\nWithout Coffee & Bread")
@@ -278,21 +278,21 @@ ggplot(a2, aes(x=Weekday, y=Item)) +
 top10datahr = data_clean[grep(paste(top10$Item[-11], collapse="$|"), data_clean$Item),]
 top10datahr = summarise(group_by(top10datahr, Item, Hour), Count = n())
 
-b1 = top10datahr[grep("Coffee|Bread", top10datahr$Item, invert=FALSE),] 
-ggplot(b1, aes(x=Hour, y=Item)) +
+top10datahr[grep("Coffee|Bread", top10datahr$Item, invert=FALSE),] %>%
+  ggplot(aes(x=Hour, y=Item)) +
   geom_tile(aes(fill=Count), colour="white") +
   scale_fill_continuous(low="white", high="steelblue", name="Count") +
   labs(title = "Top 10 Items Purchase Frequency by Hour\nWith Coffee & Bread")
 
-b2 = top10datahr[grep("Coffee|Bread", top10datahr$Item, invert=TRUE),] 
-ggplot(b2, aes(x=Hour, y=Item)) +
+top10datahr[grep("Coffee|Bread", top10datahr$Item, invert=TRUE),] %>%
+  ggplot(aes(x=Hour, y=Item)) +
   geom_tile(aes(fill=Count), colour="white") +
   scale_fill_continuous(low="white", high="steelblue", name="Count") +
   labs(title = "Top 10 Items Purchase Frequency by Hour\nWithout Coffee & Bread")
 ```
 
-> *By Weekday - Has not much to see. The trend is similar to pervious plots where Saturday has the most transactions.
-*By Hour - We can see that Coffee is really popular especially before lunch time (11am) whereas Sandwiches are most popular after lunch time (1pm). People love haveing cake between 2-3 pm, perhaps it's a suitable tea time for everyone.
+>* By Weekday - Has not much to see. The trend is similar to pervious plots where Saturday has the most transactions.
+* By Hour - We can see that Coffee is really popular especially before lunch time (11am) whereas Sandwiches are most popular after lunch time (1pm). People love haveing cake between 2-3 pm, perhaps it's a suitable tea time for everyone.
 
 
 ### Summary of Exploratory Analysis
