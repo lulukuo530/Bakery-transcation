@@ -13,17 +13,19 @@ library(arulesViz) #association rules
 library(ggplot2)
 #library(plotrix)
 library(RColorBrewer)
+library(Hmisc)
 
 
 ##### 1 - Explore Data #####
 data = fread("~/Desktop/R/meetup/bakery-transaction-master/BreadBasket_DMS.csv",sep=",",stringsAsFactors=F)
+describe(data)
 str(data)
 summary(data)
 head(data)
 tail(data)
 
 ###Correct date and time column types
-data <- data %>%
+data = data %>%
   mutate(
     Date = as.Date(Date),  #data$Date = mutate(data, as.Date(Date))
     Time = as.ITime(Time)  #date$Time = mutate(data, as.ITime(Time))
@@ -78,6 +80,15 @@ lengths(data_item1)[2]
 # 94
 
 #fwrite(data_clean,"~/Desktop/R/meetup/bakery-transaction-master/BreadBasket_DMS_clean.csv")
+data_clean = fread("~/Desktop/R/meetup/bakery-transaction-master/BreadBasket_DMS_clean.csv",sep=",",stringsAsFactors=F)
+data_clean = data_clean %>%
+  mutate(
+    Date = as.Date(Date),  
+    Time = as.ITime(Time),
+    Hour = as.factor(hour(Time)),
+    Weekday = weekdays(Date)
+  )
+head(data_clean)
 
 ## ggplot theme
 theme = theme(axis.text.y = element_blank(), axis.ticks.y = element_blank())
@@ -218,6 +229,41 @@ ggplot(top10, aes(x="", y=Count, fill=Item)) +
         plot.title = element_text(hjust=.5, size=15),
         legend.text = element_text(size=10))
 
+
+### Heat Map
+#check if weekday sales total transactions and item transaction have relationship
+top10data = data_clean[grep(paste(top10$Item[-11], collapse="$|"), data_clean$Item),]
+top10data = summarise(group_by(top10data, Item, Weekday), Count = n())
+top10data$Weekday = factor(top10data$Weekday, levels=c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
+
+### Because Bread and Coffee have too many frequencies, so separate them from others
+top10data[grep("Coffee|Bread", top10data$Item),] %>%
+  ggplot(aes(x=Weekday, y=Item)) +
+  geom_tile(aes(fill=Count), colour="white") +
+  scale_fill_continuous(low="white", high="steelblue", name="Count") +
+  labs(title = "Purchase Frequency by Weekday\nWith Coffee & Bread") 
+  
+top10data[grep("Coffee|Bread", top10data$Item, invert=TRUE),] %>%
+  ggplot(aes(x=Weekday, y=Item)) +
+  geom_tile(aes(fill=Count), colour="white") +
+  scale_fill_continuous(low="white", high="steelblue", name="Count") +
+  labs(title = "Top 10 Items Purchase Frequency by Weekday\nWithout Coffee & Bread")
+
+### Heat map between Hour and Top 10 items
+top10datahr = data_clean[grep(paste(top10$Item[-11], collapse="$|"), data_clean$Item),]
+top10datahr = summarise(group_by(top10datahr, Item, Hour), Count = n())
+
+top10datahr[grep("Coffee|Bread", top10datahr$Item, invert=FALSE),] %>%
+  ggplot(aes(x=Hour, y=Item)) +
+  geom_tile(aes(fill=Count), colour="white") +
+  scale_fill_continuous(low="white", high="steelblue", name="Count") +
+  labs(title = "Top 10 Items Purchase Frequency by Hour\nWith Coffee & Bread")
+
+top10datahr[grep("Coffee|Bread", top10datahr$Item, invert=TRUE),] %>%
+  ggplot(aes(x=Hour, y=Item)) +
+  geom_tile(aes(fill=Count), colour="white") +
+  scale_fill_continuous(low="white", high="steelblue", name="Count") +
+  labs(title = "Top 10 Items Purchase Frequency by Hour\nWithout Coffee & Bread")
 
 ##### 4 - Item Combination
 ### Find which transactions purchased more than two items

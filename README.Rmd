@@ -98,6 +98,14 @@ We start with time variables.
 
 ### How many items were made across the year
 ```{r year, echo=TRUE}
+data_clean = data_clean %>%
+  mutate(
+    Date = as.Date(Date),  
+    Time = as.ITime(Time),
+    Hour = as.factor(hour(Time)),
+    Weekday = weekdays(Date)
+  )
+
 data_clean %>% group_by(Date, Item) %>% summarise(Count=n()) %>% 
   mutate(Year = year(Date)) %>%
   ggplot(aes(x=Date, y=Count, colour=factor(Year))) +
@@ -246,6 +254,46 @@ ggplot(top10, aes(x="", y=Count, fill=Item)) +
         plot.title = element_text(hjust=.5, size=15),
         legend.text = element_text(size=10))
 ```
+
+### Use Heatmap to examine When and What people buy
+#### Separate 'Coffee' and 'Bread' because they have most majorities
+```{r HeatMap}
+top10data = data_clean[grep(paste(top10$Item[-11], collapse="$|"), data_clean$Item),]
+top10data = summarise(group_by(top10data, Item, Weekday), Count = n())
+
+### Because Bread and Coffee have too many frequencies, so separate them from others
+a1 = top10data[grep("Coffee|Bread", top10data$Item),]
+ggplot(a1, aes(x=Weekday, y=Item)) +
+  geom_tile(aes(fill=Count), colour="white") +
+  scale_fill_continuous(low="white", high="steelblue", name="Count") +
+  labs(title = "Purchase Frequency by Weekday\nWith Coffee & Bread") 
+  
+a2 = top10data[grep("Coffee|Bread", top10data$Item, invert=TRUE),]
+ggplot(a2, aes(x=Weekday, y=Item)) +
+  geom_tile(aes(fill=Count), colour="white") +
+  scale_fill_continuous(low="white", high="steelblue", name="Count") +
+  labs(title = "Top 10 Items Purchase Frequency by Weekday\nWithout Coffee & Bread")
+
+### Heat map between Hour and Top 10 items
+top10datahr = data_clean[grep(paste(top10$Item[-11], collapse="$|"), data_clean$Item),]
+top10datahr = summarise(group_by(top10datahr, Item, Hour), Count = n())
+
+b1 = top10datahr[grep("Coffee|Bread", top10datahr$Item, invert=FALSE),] 
+ggplot(b1, aes(x=Hour, y=Item)) +
+  geom_tile(aes(fill=Count), colour="white") +
+  scale_fill_continuous(low="white", high="steelblue", name="Count") +
+  labs(title = "Top 10 Items Purchase Frequency by Hour\nWith Coffee & Bread")
+
+b2 = top10datahr[grep("Coffee|Bread", top10datahr$Item, invert=TRUE),] 
+ggplot(b2, aes(x=Hour, y=Item)) +
+  geom_tile(aes(fill=Count), colour="white") +
+  scale_fill_continuous(low="white", high="steelblue", name="Count") +
+  labs(title = "Top 10 Items Purchase Frequency by Hour\nWithout Coffee & Bread")
+```
+
+> *By Weekday - Has not much to see. The trend is similar to pervious plots where Saturday has the most transactions.
+*By Hour - We can see that Coffee is really popular especially before lunch time (11am) whereas Sandwiches are most popular after lunch time (1pm). People love haveing cake between 2-3 pm, perhaps it's a suitable tea time for everyone.
+
 
 ### Summary of Exploratory Analysis
 * November is the busiest month, whereas April and October are the slowest months. It may beacuse of April and October are the beginning and ending period of our data collection process. People bought 2 items each time on a monthly average.
